@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gracelight Creations — Digital Marketing Agency</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Official Supabase JS v2 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Sora', sans-serif; }
+
+    .top-glow {
+      position: absolute; top: 0; left: 0; width: 100%; height: 600px;
+      background: radial-gradient(circle at 50% 0%, rgba(168,85,247,0.4) 0%, rgba(236,72,153,0.2) 40%, transparent 70%);
+      pointer-events: none; z-index: 1;
+    }
+    .page-section { display: none; }
+    .page-section.active { display: block; animation: fadeIn 0.4s ease-out; }
+    .nav-link.active { color: #a78bfa !important; font-weight: 600; }
+    .nav-link:hover { color: #a78bfa !important; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+    .whatsapp-btn { animation: pulse 2s infinite; }
+
+    #glow-cursor {
+      position: fixed; width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(168,85,247,0.25) 0%, rgba(236,72,153,0.15) 40%, transparent 70%);
+      border-radius: 50%; pointer-events: none; z-index: 9999;
+      transform: translate(-50%, -50%); transition: width 0.2s, height 0.2s;
+      mix-blend-mode: screen;
+    }
+
+    .filter-tab.active {
+      background: rgba(168,85,247,0.3);
+      border-color: rgba(168,85,247,0.8);
+      color: white;
+    }
+
+    nav { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+    nav.scrolled {
+      background: rgba(15, 23, 42, 0.4) !important;
+      backdrop-filter: blur(20px) saturate(180%) !important;
+      border-bottom: 1px solid rgba(168, 85, 247, 0.5) !important;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    .fade-section { opacity: 0; transform: translateY(30px); transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+    .fade-section.visible { opacity: 1; transform: translateY(0); }
+
+    /* Loading skeleton */
+    .skeleton {
+      background: linear-gradient(90deg, rgba(168,85,247,0.08) 25%, rgba(168,85,247,0.15) 50%, rgba(168,85,247,0.08) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 0.75rem;
+    }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+  </style>
+</head>
+<body class="h-full bg-slate-950 text-white">
+
+<div id="glow-cursor"></div>
+
+<!-- WhatsApp Floating Button -->
+<div class="fixed bottom-6 right-6 z-50">
+  <a id="wa-float" href="https://wa.me/9779807007817?text=Hi%20Gracelight%20Creations!%20I'm%20interested%20in%20your%20services"
+     target="_blank"
+     class="whatsapp-btn block w-14 h-14 bg-[#25D366] rounded-full flex items-center justify-center shadow-lg group">
+    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="white">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.074-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.521.149-.173.198-.297.298-.496.099-.198.05-.371-.025-.521-.074-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.67-.51-.173-.008-.371-.012-.57-.012-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.226 1.36.194 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.76.982.998-3.677-.236-.375a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.9 6.994c-.004 5.45-4.438 9.88-9.888 9.88m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.333.158 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.304-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.333 11.89-11.893 0-3.18-1.24-6.162-3.495-8.411"/>
+    </svg>
+  </a>
+</div>
+
+<div id="app-container" class="w-full h-full overflow-auto">
+<div class="top-glow"></div>
+
+<!-- Navigation -->
+<nav class="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-slate-950/80 border-b border-purple-500/20">
+  <div class="max-w-7xl mx-auto px-6 py-4">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3 cursor-pointer" data-page="home">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-blue-900 flex items-center justify-center overflow-hidden">
+          <img src="gracelogo.jpeg" alt="Logo" class="w-full h-full object-cover" onerror="this.style.display='none'; this.parentNode.innerHTML='<span class=\'text-white font-bold\'>G</span>'">
+        </div>
+        <span class="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Gracelight Creations</span>
+      </div>
+      <div class="hidden md:flex items-center gap-6">
+        <a href="#" data-page="home" class="nav-link active text-sm font-medium text-purple-400">Home</a>
+        <a href="#" data-page="about" class="nav-link text-sm text-gray-300">About</a>
+        <a href="#" data-page="services" class="nav-link text-sm text-gray-300">Services</a>
+        <a href="#" data-page="portfolio" class="nav-link text-sm text-gray-300">Portfolio</a>
+        <a href="#" data-page="industries" class="nav-link text-sm text-gray-300">Industries</a>
+        <a href="#" data-page="pricing" class="nav-link text-sm text-gray-300">Pricing</a>
+        <a href="#" data-page="testimonials" class="nav-link text-sm text-gray-300">Testimonials</a>
+        <a href="#" data-page="contact" class="px-5 py-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg text-sm font-semibold">Contact</a>
+      </div>
+      <button id="mobile-menu-toggle" class="md:hidden p-2">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+    </div>
+    <div id="mobile-menu" class="hidden md:hidden mt-4 pb-4 space-y-3">
+      <a href="#" data-page="home" class="block nav-link active text-purple-400 font-medium">Home</a>
+      <a href="#" data-page="about" class="block nav-link text-gray-300">About</a>
+      <a href="#" data-page="services" class="block nav-link text-gray-300">Services</a>
+      <a href="#" data-page="portfolio" class="block nav-link text-gray-300">Portfolio</a>
+      <a href="#" data-page="industries" class="block nav-link text-gray-300">Industries</a>
+      <a href="#" data-page="pricing" class="block nav-link text-gray-300">Pricing</a>
+      <a href="#" data-page="testimonials" class="block nav-link text-gray-300">Testimonials</a>
+      <a href="#" data-page="contact" class="block nav-link text-gray-300">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ==================== HOME ==================== -->
+<section id="home" class="page-section active pt-24">
+  <div class="max-w-7xl mx-auto px-6 py-20">
+    <div class="text-center max-w-4xl mx-auto mb-20 fade-section">
+      <div class="inline-block mb-6 px-6 py-2 rounded-full bg-purple-500/20 border border-purple-500/40">
+        <span class="text-purple-300 font-semibold">✨ Trusted by 150+ Growing Businesses</span>
+      </div>
+      <h1 id="hero-headline" class="text-5xl md:text-7xl font-bold mb-6 leading-tight bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
+        Transform Your Digital Presence
+      </h1>
+      <p id="hero-subheading" class="text-xl text-gray-400 mb-10 leading-relaxed">
+        We help businesses unlock their full potential through creative content marketing.
+      </p>
+      <div class="flex flex-wrap gap-4 justify-center mb-12">
+        <a href="#" data-page="contact" class="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl font-semibold">Get Free Consultation</a>
+        <a href="#" data-page="portfolio" class="px-8 py-4 border border-purple-500/50 rounded-xl font-semibold hover:bg-purple-500/10 transition-all">View Our Work</a>
+      </div>
+      <!-- Dynamic Stats -->
+      <div id="stats-bar" class="flex flex-wrap justify-center gap-8 text-center">
+        <div class="skeleton h-12 w-24 inline-block"></div>
+      </div>
+    </div>
+
+    <!-- Services Overview (dynamic) -->
+    <div class="mb-20 fade-section">
+      <h2 class="text-3xl font-bold text-center mb-12">What We Do Best</h2>
+      <div id="services-grid-home" class="grid md:grid-cols-3 gap-6">
+        <div class="skeleton h-64"></div><div class="skeleton h-64"></div><div class="skeleton h-64"></div>
+      </div>
+    </div>
+
+    <!-- Why Choose Us (static — branding copy) -->
+    <div class="mb-20 fade-section">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold mb-4">Why Businesses Choose Gracelight</h2>
+        <p class="text-gray-400">We're not just another agency — we're your growth partner</p>
+      </div>
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="p-6 rounded-xl bg-gradient-to-br from-purple-900/20 to-pink-900/20 border border-purple-500/20 text-center">
+          <div class="text-4xl mb-3">⚡</div><h4 class="font-bold mb-2">Lightning Fast Delivery</h4>
+          <p class="text-sm text-gray-400">Get your projects delivered on time, every time.</p>
+        </div>
+        <div class="p-6 rounded-xl bg-gradient-to-br from-purple-900/20 to-pink-900/20 border border-purple-500/20 text-center">
+          <div class="text-4xl mb-3">💰</div><h4 class="font-bold mb-2">Transparent Pricing</h4>
+          <p class="text-sm text-gray-400">No hidden fees. Clear, competitive pricing.</p>
+        </div>
+        <div class="p-6 rounded-xl bg-gradient-to-br from-purple-900/20 to-pink-900/20 border border-purple-500/20 text-center">
+          <div class="text-4xl mb-3">📊</div><h4 class="font-bold mb-2">Data-Driven Results</h4>
+          <p class="text-sm text-gray-400">Every decision backed by analytics and ROI.</p>
+        </div>
+        <div class="p-6 rounded-xl bg-gradient-to-br from-purple-900/20 to-pink-900/20 border border-purple-500/20 text-center">
+          <div class="text-4xl mb-3">🤝</div><h4 class="font-bold mb-2">Dedicated Support</h4>
+          <p class="text-sm text-gray-400">24/7 support — your team is just a call away.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="text-center py-20 rounded-3xl bg-gradient-to-r from-purple-900/50 to-pink-900/50 border border-purple-500/30 fade-section">
+      <h2 class="text-4xl md:text-5xl font-bold mb-6">Ready to Transform Your Brand?</h2>
+      <p class="text-xl text-gray-400 mb-8">Let's create something amazing together</p>
+      <a href="#" data-page="contact" class="inline-block px-10 py-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl font-bold text-lg">Get Started Now →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== ABOUT ==================== -->
+<section id="about" class="page-section pt-24">
+  <div class="max-w-7xl mx-auto px-6 py-20">
+    <div class="text-center max-w-3xl mx-auto mb-16 fade-section">
+      <h1 class="text-5xl md:text-6xl font-bold mb-6">About <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Gracelight</span></h1>
+      <p class="text-xl text-gray-400">We're more than just a marketing agency — we're your growth partner</p>
+    </div>
+    <div class="grid lg:grid-cols-2 gap-12 mb-20 fade-section">
+      <div>
+        <h2 class="text-3xl font-bold mb-6">Our Story</h2>
+        <p class="text-gray-400 text-lg mb-4">Born from a passion for creativity and growth, Gracelight Creations has been transforming businesses into powerful digital brands since our inception.</p>
+        <p class="text-gray-400 mb-6">We believe every business has a unique story worth telling — and we're here to tell it beautifully.</p>
+        <!-- Dynamic stats summary -->
+        <div id="about-stats" class="grid grid-cols-3 gap-4">
+          <div class="skeleton h-16"></div><div class="skeleton h-16"></div><div class="skeleton h-16"></div>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="p-6 rounded-2xl bg-gradient-to-br from-purple-900/50 to-pink-900/50 border border-purple-500/20"><div class="text-4xl mb-3">🎨</div><h3 class="font-bold mb-2">Creative Excellence</h3><p class="text-sm text-gray-400">Award-winning designs that capture attention</p></div>
+        <div class="p-6 rounded-2xl bg-gradient-to-br from-purple-900/50 to-pink-900/50 border border-purple-500/20 mt-8"><div class="text-4xl mb-3">📊</div><h3 class="font-bold mb-2">Data-Driven</h3><p class="text-sm text-gray-400">Results backed by analytics</p></div>
+        <div class="p-6 rounded-2xl bg-gradient-to-br from-purple-900/50 to-pink-900/50 border border-purple-500/20"><div class="text-4xl mb-3">⚡</div><h3 class="font-bold mb-2">Fast Delivery</h3><p class="text-sm text-gray-400">Quick turnaround without compromise</p></div>
+        <div class="p-6 rounded-2xl bg-gradient-to-br from-purple-900/50 to-pink-900/50 border border-purple-500/20 mt-8"><div class="text-4xl mb-3">🤝</div><h3 class="font-bold mb-2">Dedicated Support</h3><p class="text-sm text-gray-400">24/7 support whenever needed</p></div>
+      </div>
+    </div>
+    <!-- Dynamic Team -->
+    <div class="mb-20 fade-section">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold mb-4">Meet Our Expert Team</h2>
+        <p class="text-gray-400">Talented professionals dedicated to your success</p>
+      </div>
+      <div id="team-grid" class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="skeleton h-48"></div><div class="skeleton h-48"></div><div class="skeleton h-48"></div><div class="skeleton h-48"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== SERVICES ==================== -->
+<section id="services" class="page-section pt-24">
+  <div class="max-w-7xl mx-auto px-6 py-20">
+    <div class="text-center max-w-3xl mx-auto mb-16 fade-section">
+      <h1 class="text-5xl md:text-6xl font-bold mb-6">Our <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Services</span></h1>
+      <p class="text-xl text-gray-400">Everything you need to grow online</p>
+    </div>
+    <div id="services-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 fade-section">
+      <div class="skeleton h-64"></div><div class="skeleton h-64"></div><div class="skeleton h-64"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== PORTFOLIO ==================== -->
+<section id="portfolio" class="page-section pt-24">
+  <div class="max-w-7xl mx-auto px-6 py-20">
+    <div class="text-center max-w-3xl mx-auto mb-16 fade-section">
+      <h1 class="text-5xl md:text-6xl font-bold mb-6">Our <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Portfolio</span></h1>
+      <p class="text-xl text-gray-400">Creative work that has helped businesses grow</p>
+    </div>
+    <!-- Filter Tabs -->
+    <div class="flex flex-wrap justify-center gap-4 mb-10 fade-section">
+      <button data-filter="all" class="filter-tab active px-5 py-2 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-300 font-medium hover:bg-purple-500/30 transition-all">All</button>
+      <button data-filter="videos" class="filter-tab px-5 py-2 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-300 font-medium hover:bg-purple-500/30 transition-all">Videos</button>
+      <button data-filter="websites" class="filter-tab px-5 py-2 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-300 font-medium hover:bg-purple-500/30 transition-all">Websites</button>
+      <button data-filter="graphics" class="filter-tab px-5 py-2 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-300 font-medium hover:bg-purple-500/30 transition-all">Graphics</button>
+      <button data-filter="logos" class="filter-tab px-5 py-2 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-300 font-medium hover:bg-purple-500/30 transition-all">Logos</button>
+    </div>
+    <div id="projects-grid" class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="skeleton h-64"></div><div class="skeleton h-64"></div><div class="skeleton h-64"></div><div class="skeleton h-64"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== INDUSTRIES ==================== -->
+<section id="industries" class="page-section pt-24">
+  <div class="max-w-7xl mx-auto px-6 py-20">
+    <div class="text-center max-w-3xl mx-auto mb-16 fade-section">
+      <h1 class="text-5xl md:text-6xl font-bold mb-6">Industries We <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Serve</span></h1>
+      <p class="text-xl text-gray-400">Trusted across diverse sectors</p>
+    </div>
+    <div id="industries-grid" class="grid md:grid-cols-2 gap-8 fade-section">
+      <div class="skeleton h-48"></div><div class="skeleton h-48"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== PRICING ==================== -->
+<section id="pricing" class="page-section pt-24">
+  <div class="max-w-7xl mx-auto px-6 py-20">
+    <div class="text-center max-w-3xl mx-auto mb-16 fade-section">
+      <h1 class="text-5xl md:text-6xl font-bold mb-6">Simple <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Transparent Pricing</span></h1>
+      <p class="text-xl text-gray-400">Choose the perfect plan for your business growth</p>
+    </div>
+    <div id="pricing-grid" class="grid md:grid-cols-3 gap-8 mb-20 fade-section">
+      <div class="skeleton h-96"></div><div class="skeleton h-96"></div><div class="skeleton h-96"></div>
+    </div>
+    <!-- Add-ons -->
+    <div class="mb-20 fade-section">
+      <h2 class="text-3xl font-bold text-center mb-12">Additional Services & Add-ons</h2>
+      <div id="addons-grid" class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="skeleton h-36"></div><div class="skeleton h-36"></div><div class="skeleton h-36"></div><div class="skeleton h-36"></div>
+      </div>
+    </div>
+    <!-- FAQs -->
+    <div class="mb-20 fade-section">
+      <h2 class="text-3xl font-bold text-center mb-12">Frequently Asked Questions</h2>
+      <div id="faqs-grid" class="grid md:grid-cols-2 gap-6">
+        <div class="skeleton h-28"></div><div class="skeleton h-28"></div>
+      </div>
+    </div>
+    <div class="text-center py-16 rounded-3xl bg-gradient-to-r from-purple-900/50 to-pink-900/50 border border-purple-500/30 fade-section">
+      <h2 class="text-4xl font-bold mb-4">Still Not Sure Which Plan to Choose?</h2>
+      <p class="text-xl text-gray-400 mb-8">Let's hop on a free consultation call</p>
+      <a href="#" data-page="contact" class="inline-block px-10 py-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl font-bold text-lg">Book Free Consultation →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== TESTIMONIALS ==================== -->
+<section id="testimonials" class="page-section pt-24">
+  <div class="max-w-7xl mx-auto px-6 py-20">
+    <div class="text-center max-w-3xl mx-auto mb-16 fade-section">
+      <h1 class="text-5xl md:text-6xl font-bold mb-6">Client <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Testimonials</span></h1>
+      <p class="text-xl text-gray-400">Real feedback from real businesses</p>
+    </div>
+    <div id="testimonials-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 fade-section">
+      <div class="skeleton h-56"></div><div class="skeleton h-56"></div><div class="skeleton h-56"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== CONTACT ==================== -->
+<section id="contact" class="page-section pt-24">
+  <div class="max-w-7xl mx-auto px-6 py-20">
+    <div class="text-center max-w-3xl mx-auto mb-16 fade-section">
+      <h1 class="text-5xl md:text-6xl font-bold mb-6">Get in <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Touch</span></h1>
+      <p class="text-xl text-gray-400">Let's discuss your project and create something amazing</p>
+    </div>
+    <div class="grid lg:grid-cols-2 gap-12 fade-section">
+      <div>
+        <h2 class="text-3xl font-bold mb-8">Let's Talk About Your Project</h2>
+        <p class="text-gray-400 text-lg mb-8">Whether you're just starting out or looking to scale, we're here to help.</p>
+        <div class="space-y-6">
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-xl bg-purple-900/50 border border-purple-500/30 flex items-center justify-center flex-shrink-0"><span class="text-2xl">📧</span></div>
+            <div><div class="text-sm text-gray-500">Email us</div><div id="contact-email" class="font-semibold text-lg">hello@gracelightcreations.com</div></div>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-xl bg-purple-900/50 border border-purple-500/30 flex items-center justify-center flex-shrink-0"><span class="text-2xl">📱</span></div>
+            <div><div class="text-sm text-gray-500">Call us</div><div id="contact-phone" class="font-semibold text-lg">+977 9807007817</div></div>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-xl bg-purple-900/50 border border-purple-500/30 flex items-center justify-center flex-shrink-0"><span class="text-2xl">⏱️</span></div>
+            <div><div class="text-sm text-gray-500">Response time</div><div class="font-semibold text-lg">Within 24 hours</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="p-8 rounded-2xl bg-gradient-to-br from-purple-900/30 to-pink-900/30 border border-purple-500/20">
+        <form id="contact-form" class="space-y-5">
+          <div class="grid md:grid-cols-2 gap-4">
+            <div><label class="block text-sm font-medium mb-2">Full Name *</label>
+              <input type="text" id="f-name" required class="w-full px-4 py-3 rounded-xl bg-slate-900/50 border border-purple-500/30 text-white transition-all focus:border-purple-400 focus:outline-none"></div>
+            <div><label class="block text-sm font-medium mb-2">Email *</label>
+              <input type="email" id="f-email" required class="w-full px-4 py-3 rounded-xl bg-slate-900/50 border border-purple-500/30 text-white transition-all focus:border-purple-400 focus:outline-none"></div>
+          </div>
+          <div class="grid md:grid-cols-2 gap-4">
+            <div><label class="block text-sm font-medium mb-2">Phone</label>
+              <input type="tel" id="f-phone" class="w-full px-4 py-3 rounded-xl bg-slate-900/50 border border-purple-500/30 text-white transition-all focus:border-purple-400 focus:outline-none"></div>
+            <div><label class="block text-sm font-medium mb-2">Service *</label>
+              <select id="f-service" required class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-purple-500/30 text-white transition-all focus:border-purple-400 focus:outline-none">
+                <option value="">Select service</option>
+                <option value="social">Social Media</option>
+                <option value="video">Video Editing</option>
+                <option value="graphic">Graphic Design</option>
+                <option value="website">Website</option>
+                <option value="branding">Branding</option>
+                <option value="complete">Complete Package</option>
+              </select></div>
+          </div>
+          <div><label class="block text-sm font-medium mb-2">Message *</label>
+            <textarea id="f-message" rows="5" required class="w-full px-4 py-3 rounded-xl bg-slate-900/50 border border-purple-500/30 text-white resize-none transition-all focus:border-purple-400 focus:outline-none"></textarea></div>
+          <button type="submit" id="submit-btn" class="w-full px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl font-bold text-lg transition-all">
+            Send Message →
+          </button>
+          <div id="form-success" class="hidden text-center p-4 rounded-xl bg-green-500/20 border border-green-500/50">
+            <p class="text-green-400 font-semibold">✓ Message sent! We'll reply within 24 hours.</p>
+          </div>
+          <div id="form-error" class="hidden text-center p-4 rounded-xl bg-red-500/20 border border-red-500/50">
+            <p class="text-red-400 font-semibold">Failed to send. Please try WhatsApp instead.</p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="py-12 border-t border-purple-500/20">
+  <div class="max-w-7xl mx-auto px-6 text-center">
+    <div class="flex items-center justify-center gap-3 mb-4">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center font-bold">G</div>
+      <span class="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Gracelight Creations</span>
+    </div>
+    <p class="text-gray-400 mb-6">Transforming businesses into powerful digital brands</p>
+    <div class="text-sm text-gray-500">© 2025 Gracelight Creations. All rights reserved.</div>
+  </div>
+</footer>
+</div><!-- end app-container -->
+
+<!-- ==================== SCRIPTS ==================== -->
+<script>
+// ============================================================
+// CONFIG — Same Supabase project as admin
+// ============================================================
+const SUPABASE_URL  = 'https://coyyouxyoqeqtmvcjlng.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNveXlvdXh5b3FlcXRtdmNqbG5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNjQ5MDYsImV4cCI6MjA4Nzk0MDkwNn0.IxvPhqWjIjycZVhvsV0xTiplBZ0CCxr-8o34izzZXSQ';
+
+// Supabase client (read-only operations from frontend)
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// ============================================================
+// CATEGORY COLOR MAP for projects
+// ============================================================
+const CATEGORY_COLORS = {
+  videos:   'from-purple-600/50 to-pink-600/50',
+  websites: 'from-blue-600/50 to-cyan-600/50',
+  graphics: 'from-green-600/50 to-emerald-600/50',
+  logos:    'from-orange-600/50 to-red-600/50',
+};
+const CATEGORY_TEXT = {
+  videos:   'text-purple-400',
+  websites: 'text-blue-400',
+  graphics: 'text-green-400',
+  logos:    'text-orange-400',
+};
+
+// ============================================================
+// DATA LOADER — fetches everything in parallel
+// ============================================================
+const Data = {
+  settings: null, stats: [], services: [], team: [],
+  testimonials: [], projects: [], industries: [],
+  pricing: [], addons: [], faqs: [],
+
+  async loadAll() {
+    const [settings, stats, services, team, testimonials,
+           projects, industries, pricing, addons, faqs] = await Promise.all([
+      sb.from('site_settings').select('*').eq('id', 1).single(),
+      sb.from('stats').select('*').eq('active', true).order('display_order'),
+      sb.from('services').select('*').eq('active', true).order('display_order'),
+      sb.from('team_members').select('*').eq('active', true).order('display_order'),
+      sb.from('testimonials').select('*').eq('active', true).order('display_order'),
+      sb.from('projects').select('*').eq('active', true).order('display_order'),
+      sb.from('industries').select('*').eq('active', true).order('display_order'),
+      sb.from('pricing_plans').select('*').eq('active', true).order('display_order'),
+      sb.from('addons').select('*').eq('active', true).order('display_order'),
+      sb.from('faqs').select('*').eq('active', true).order('display_order'),
+    ]);
+
+    Data.settings     = settings.data;
+    Data.stats        = stats.data        || [];
+    Data.services     = services.data     || [];
+    Data.team         = team.data         || [];
+    Data.testimonials = testimonials.data || [];
+    Data.projects     = projects.data     || [];
+    Data.industries   = industries.data   || [];
+    Data.pricing      = pricing.data      || [];
+    Data.addons       = addons.data       || [];
+    Data.faqs         = faqs.data         || [];
+
+    Render.all();
+  }
+};
+
+// ============================================================
+// RENDER MODULE — safe HTML generation
+// ============================================================
+function esc(str) {
+  if (str == null) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+const Render = {
+  all() {
+    Render.settings();
+    Render.stats();
+    Render.services();
+    Render.team();
+    Render.testimonials();
+    Render.projects();
+    Render.industries();
+    Render.pricing();
+    Render.addons();
+    Render.faqs();
+  },
+
+  settings() {
+    if (!Data.settings) return;
+    const s = Data.settings;
+    const h = document.getElementById('hero-headline');
+    const sub = document.getElementById('hero-subheading');
+    const em = document.getElementById('contact-email');
+    const ph = document.getElementById('contact-phone');
+    if (h && s.hero_headline) h.textContent = s.hero_headline;
+    if (sub && s.hero_subheading) sub.textContent = s.hero_subheading;
+    if (em && s.contact_email) em.textContent = s.contact_email;
+    if (ph && s.contact_phone) ph.textContent = s.contact_phone;
+    // Update WhatsApp links
+    if (s.whatsapp_number) {
+      const num = s.whatsapp_number;
+      document.querySelectorAll('a[href*="wa.me"]').forEach(a => {
+        a.href = a.href.replace(/wa\.me\/[^?]+/, `wa.me/${num}`);
+      });
+    }
+  },
+
+  stats() {
+    const el = document.getElementById('stats-bar');
+    if (!el || !Data.stats.length) return;
+    el.innerHTML = Data.stats.map((s, i) => {
+      const divider = i < Data.stats.length - 1
+        ? '<div class="w-px h-12 bg-purple-500/30 hidden sm:block"></div>' : '';
+      return `
+        <div>
+          <div class="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent stat-number" data-target="${s.value}" data-suffix="${esc(s.suffix)}">0</div>
+          <div class="text-sm text-gray-500">${esc(s.label)}</div>
+        </div>${divider}`;
+    }).join('');
+    // Also render about stats summary
+    const about = document.getElementById('about-stats');
+    if (about) {
+      about.innerHTML = Data.stats.slice(0, 3).map(s => `
+        <div class="text-center p-4 rounded-xl bg-purple-900/30 border border-purple-500/20">
+          <div class="text-3xl font-bold text-purple-400">${s.value}${esc(s.suffix)}</div>
+          <div class="text-sm text-gray-500">${esc(s.label)}</div>
+        </div>`).join('');
+    }
+    initCounters();
+  },
+
+  services() {
+    const makeCard = (s) => `
+      <div class="p-8 rounded-2xl bg-gradient-to-br from-purple-900/30 to-pink-900/30 border border-purple-500/20 hover:border-purple-500/50 hover:scale-105 transition-all relative ${s.is_popular ? 'overflow-hidden' : ''}">
+        ${s.is_popular ? '<div class="absolute top-0 right-0 bg-gradient-to-l from-purple-500 to-pink-500 text-xs font-bold px-3 py-1 rounded-bl-xl">POPULAR</div>' : ''}
+        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-6 text-2xl">${s.icon}</div>
+        <h3 class="text-xl font-bold mb-3">${esc(s.title)}</h3>
+        <p class="text-gray-400 mb-4">${esc(s.description || '')}</p>
+        <ul class="space-y-2 text-sm text-gray-500">
+          ${(s.features || []).map(f => `<li>✓ ${esc(f)}</li>`).join('')}
+        </ul>
+      </div>`;
+
+    const g1 = document.getElementById('services-grid');
+    const g2 = document.getElementById('services-grid-home');
+    const html = Data.services.length
+      ? Data.services.map(makeCard).join('')
+      : '<p class="col-span-3 text-center text-gray-500 py-12">No services found</p>';
+
+    if (g1) g1.innerHTML = html;
+    if (g2) g2.innerHTML = Data.services.slice(0, 3).map(makeCard).join('');
+  },
+
+  team() {
+    const el = document.getElementById('team-grid');
+    if (!el) return;
+    el.innerHTML = Data.team.length
+      ? Data.team.map(m => `
+          <div class="p-6 rounded-2xl bg-gradient-to-br from-purple-900/30 to-pink-900/30 border border-purple-500/20 text-center hover:scale-105 transition-all">
+            <div class="w-24 h-24 rounded-full bg-gradient-to-br ${m.color_gradient} flex items-center justify-center mx-auto mb-4 text-3xl font-bold">${esc(m.initials)}</div>
+            <h4 class="font-bold text-lg mb-1">${esc(m.name)}</h4>
+            <p class="text-purple-400 text-sm mb-3">${esc(m.role)}</p>
+            <p class="text-gray-400 text-sm">${esc(m.bio || '')}</p>
+          </div>`).join('')
+      : '<p class="col-span-4 text-center text-gray-500 py-12">Coming soon</p>';
+  },
+
+  testimonials() {
+    const el = document.getElementById('testimonials-grid');
+    if (!el) return;
+    el.innerHTML = Data.testimonials.length
+      ? Data.testimonials.map(t => `
+          <div class="p-8 rounded-2xl bg-gradient-to-br from-purple-900/30 to-pink-900/30 border border-purple-500/20 hover:border-purple-500/50 transition-all">
+            <div class="flex gap-1 mb-4 text-yellow-400">${'★'.repeat(t.rating)}</div>
+            <p class="text-gray-300 mb-6">"${esc(t.content)}"</p>
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-full bg-gradient-to-br ${t.color_gradient} flex items-center justify-center font-bold flex-shrink-0">${esc(t.initials)}</div>
+              <div>
+                <div class="font-semibold">${esc(t.client_name)}</div>
+                <div class="text-sm text-gray-500">${esc(t.client_company)}</div>
+              </div>
+            </div>
+          </div>`).join('')
+      : '<p class="col-span-3 text-center text-gray-500 py-12">No testimonials yet</p>';
+  },
+
+  projects() {
+    const el = document.getElementById('projects-grid');
+    if (!el) return;
+    el.innerHTML = Data.projects.length
+      ? Data.projects.map(p => `
+          <div class="project-item group rounded-2xl bg-gradient-to-br from-purple-900/30 to-pink-900/30 border border-purple-500/20 p-6 hover:border-purple-500/50 transition-all" data-category="${p.category}">
+            <div class="aspect-video rounded-lg bg-gradient-to-br ${CATEGORY_COLORS[p.category] || 'from-purple-600/50 to-pink-600/50'} flex items-center justify-center mb-4">
+              <span class="text-5xl">${p.icon}</span>
+            </div>
+            <h4 class="font-bold text-lg mb-2">${esc(p.title)}</h4>
+            <p class="text-sm text-gray-400 mb-3">${esc(p.description || '')}</p>
+            <div class="flex justify-between items-center">
+              <span class="text-xs ${CATEGORY_TEXT[p.category] || 'text-purple-400'} capitalize">
+                ${esc(p.category)}
+                ${p.external_link ? `<a href="${esc(p.external_link)}" target="_blank" class="ml-1 hover:text-white transition-colors">🔗</a>` : ''}
+              </span>
+              ${p.featured ? '<span class="text-xs bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded-full">Featured</span>' : ''}
+            </div>
+          </div>`).join('')
+      : '<p class="col-span-4 text-center text-gray-500 py-12">No projects yet</p>';
+    initProjectFilter();
+  },
+
+  industries() {
+    const el = document.getElementById('industries-grid');
+    if (!el) return;
+    el.innerHTML = Data.industries.length
+      ? Data.industries.map(i => `
+          <div class="p-10 rounded-3xl bg-gradient-to-br from-purple-900/30 to-pink-900/30 border border-purple-500/20 hover:border-purple-500/50 transition-all">
+            <div class="flex items-start gap-6">
+              <div class="text-5xl">${i.icon}</div>
+              <div>
+                <h3 class="text-2xl font-bold mb-3">${esc(i.name)}</h3>
+                <p class="text-gray-400 mb-4">${esc(i.description || '')}</p>
+                <ul class="space-y-2 text-sm text-gray-500">
+                  ${(i.features || []).map(f => `<li>✓ ${esc(f)}</li>`).join('')}
+                </ul>
+              </div>
+            </div>
+          </div>`).join('')
+      : '<p class="col-span-2 text-center text-gray-500 py-12">No industries listed yet</p>';
+  },
+
+  pricing() {
+    const el = document.getElementById('pricing-grid');
+    if (!el) return;
+    el.innerHTML = Data.pricing.length
+      ? Data.pricing.map(p => {
+          const features = p.features || {};
+          const featureItems = Object.entries(features).map(([k, v]) => {
+            if (v === false || v === 0 || v === null) return `<div class="flex items-start gap-3 opacity-40"><span class="text-red-400 mt-1">✗</span><div class="capitalize">${k.replace(/_/g,' ')}</div></div>`;
+            const display = v === true ? k.replace(/_/g,' ') : `${v} ${k.replace(/_/g,' ')}`;
+            return `<div class="flex items-start gap-3"><span class="text-green-400 mt-1">✓</span><div class="capitalize">${esc(display)}</div></div>`;
+          }).join('');
+          const popular = p.is_popular;
+          return `
+            <div class="p-8 rounded-3xl bg-gradient-to-br from-purple-900/${popular ? '50' : '30'} to-pink-900/${popular ? '50' : '30'} ${popular ? 'border-2 border-purple-500' : 'border border-purple-500/20'} hover:scale-105 transition-all relative">
+              ${popular ? '<div class="absolute -top-4 left-1/2 transform -translate-x-1/2"><div class="px-6 py-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-sm font-bold">MOST POPULAR</div></div>' : ''}
+              <div class="text-center mb-8 ${popular ? 'mt-4' : ''}">
+                <div class="text-5xl font-bold mb-2">${esc(p.currency)} ${p.price.toLocaleString()}</div>
+                <div class="text-gray-400">per ${p.interval}</div>
+                ${p.description ? `<div class="text-sm text-gray-500 mt-2">${esc(p.description)}</div>` : ''}
+              </div>
+              <div class="space-y-3 text-sm mb-8">${featureItems}</div>
+              <a href="#" data-page="contact" class="block w-full px-6 py-3 ${popular ? 'bg-gradient-to-r from-purple-500 to-pink-500' : 'border border-purple-500/50 hover:bg-purple-500/10'} rounded-xl font-semibold text-center transition-all">${esc(p.button_text)}</a>
+            </div>`;
+        }).join('')
+      : '<p class="col-span-3 text-center text-gray-500 py-12">No pricing plans yet</p>';
+  },
+
+  addons() {
+    const el = document.getElementById('addons-grid');
+    if (!el) return;
+    el.innerHTML = Data.addons.length
+      ? Data.addons.map(a => `
+          <div class="p-6 rounded-2xl bg-gradient-to-br from-purple-900/30 to-pink-900/30 border border-purple-500/20 text-center">
+            <div class="text-4xl mb-3">${a.icon}</div>
+            <h4 class="font-bold mb-2">${esc(a.name)}</h4>
+            <p class="text-gray-400 text-sm mb-3">${esc(a.description || '')}</p>
+            <div class="text-2xl font-bold text-purple-400">Rs ${a.price.toLocaleString()}</div>
+            <div class="text-xs text-gray-500">${esc(a.price_text || '')}</div>
+          </div>`).join('')
+      : '<p class="col-span-4 text-center text-gray-500 py-8">No add-ons listed</p>';
+  },
+
+  faqs() {
+    const el = document.getElementById('faqs-grid');
+    if (!el) return;
+    el.innerHTML = Data.faqs.length
+      ? Data.faqs.map(f => `
+          <div class="p-6 rounded-2xl bg-gradient-to-br from-purple-900/30 to-pink-900/30 border border-purple-500/20">
+            <h4 class="font-bold mb-3 flex items-start gap-2"><span class="text-purple-400 flex-shrink-0">Q:</span>${esc(f.question)}</h4>
+            <p class="text-gray-400 text-sm">${esc(f.answer)}</p>
+          </div>`).join('')
+      : '<p class="col-span-2 text-center text-gray-500 py-8">No FAQs yet</p>';
+  }
+};
+
+// ============================================================
+// CONTACT FORM — saves to Supabase messages table
+// ============================================================
+document.getElementById('contact-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('submit-btn');
+  const success = document.getElementById('form-success');
+  const error = document.getElementById('form-error');
+  success.classList.add('hidden');
+  error.classList.add('hidden');
+
+  const name    = document.getElementById('f-name').value.trim();
+  const email   = document.getElementById('f-email').value.trim();
+  const phone   = document.getElementById('f-phone').value.trim();
+  const service = document.getElementById('f-service').value;
+  const message = document.getElementById('f-message').value.trim();
+
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+
+  try {
+    const { error: dbErr } = await sb.from('messages').insert([{
+      name, email, phone: phone || null, service: service || null, message, status: 'unread'
+    }]);
+
+    if (dbErr) throw dbErr;
+
+    success.classList.remove('hidden');
+    e.target.reset();
+  } catch (err) {
+    console.error('Form submit error:', err);
+    error.classList.remove('hidden');
+    // Fallback: open WhatsApp
+    const wa = `https://wa.me/${Data.settings?.whatsapp_number || '9779807007817'}?text=*New Inquiry*%0A*Name:* ${encodeURIComponent(name)}%0A*Email:* ${encodeURIComponent(email)}%0A*Service:* ${encodeURIComponent(service)}%0A*Message:* ${encodeURIComponent(message)}`;
+    setTimeout(() => window.open(wa, '_blank'), 1500);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Send Message →';
+  }
+});
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function initNavigation() {
+  const pages = document.querySelectorAll('.page-section');
+  const container = document.getElementById('app-container');
+
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('[data-page]');
+    if (!link) return;
+    e.preventDefault();
+    const targetPage = link.getAttribute('data-page');
+    pages.forEach(p => p.classList.remove('active'));
+    document.getElementById(targetPage)?.classList.add('active');
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    document.querySelectorAll(`.nav-link[data-page="${targetPage}"]`).forEach(l => l.classList.add('active'));
+    container.scrollTop = 0;
+    document.getElementById('mobile-menu')?.classList.add('hidden');
+  });
+
+  document.getElementById('mobile-menu-toggle')?.addEventListener('click', () =>
+    document.getElementById('mobile-menu')?.classList.toggle('hidden'));
+}
+
+// ============================================================
+// PROJECT FILTER
+// ============================================================
+function initProjectFilter() {
+  document.querySelectorAll('.filter-tab').forEach(tab => {
+    tab.onclick = () => {
+      document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const filter = tab.dataset.filter;
+      document.querySelectorAll('.project-item').forEach(item => {
+        item.style.display = filter === 'all' || item.dataset.category === filter ? '' : 'none';
+      });
+    };
+  });
+}
+
+// ============================================================
+// COUNTER ANIMATION
+// ============================================================
+function initCounters() {
+  const container = document.getElementById('app-container');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const el = entry.target;
+      if (el.dataset.counted) return;
+      el.dataset.counted = '1';
+      const target = parseFloat(el.dataset.target);
+      const suffix = el.dataset.suffix || '';
+      const isDecimal = target % 1 !== 0;
+      let current = 0;
+      const duration = 1000;
+      const steps = 50;
+      const increment = target / steps;
+      const timer = setInterval(() => {
+        current = Math.min(current + increment, target);
+        el.textContent = isDecimal ? current.toFixed(1) + suffix : Math.round(current) + suffix;
+        if (current >= target) clearInterval(timer);
+      }, duration / steps);
+    });
+  }, { threshold: 0.5, root: container });
+
+  document.querySelectorAll('.stat-number').forEach(el => observer.observe(el));
+}
+
+// ============================================================
+// SCROLL ANIMATIONS
+// ============================================================
+function initScrollAnimations() {
+  const container = document.getElementById('app-container');
+  const nav = document.querySelector('nav');
+  container.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', container.scrollTop > 50);
+  }, { passive: true });
+
+  const fadeObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => e.isIntersecting && e.target.classList.add('visible'));
+  }, { threshold: 0.15, root: container });
+
+  document.querySelectorAll('.fade-section').forEach(el => fadeObserver.observe(el));
+}
+
+// ============================================================
+// MOUSE GLOW
+// ============================================================
+function initMouseGlow() {
+  const cursor = document.getElementById('glow-cursor');
+  if (!cursor) return;
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top  = e.clientY + 'px';
+  });
+}
+
+// ============================================================
+// REALTIME — listen for admin changes and reload data
+// ============================================================
+function initRealtime() {
+  const TABLES = ['site_settings','stats','services','team_members',
+                  'testimonials','projects','industries','pricing_plans','addons','faqs'];
+
+  // Single channel subscription watching all tables
+  const channel = sb.channel('public-data-changes');
+
+  TABLES.forEach(table => {
+    channel.on('postgres_changes', { event: '*', schema: 'public', table }, () => {
+      // Debounce: wait 500ms then reload
+      clearTimeout(Data._reloadTimer);
+      Data._reloadTimer = setTimeout(() => Data.loadAll(), 500);
+    });
+  });
+
+  channel.subscribe();
+}
+
+// ============================================================
+// BOOT
+// ============================================================
+initNavigation();
+initScrollAnimations();
+initMouseGlow();
+Data.loadAll().catch(console.error);
+initRealtime(); // Live updates from admin panel
+</script>
+</body>
+</html>
